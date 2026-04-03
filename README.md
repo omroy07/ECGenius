@@ -2,7 +2,6 @@
 
 > An AI-powered ECG analysis web application for automated arrhythmia detection and cardiac signal classification.
 
-🌐 **Live Demo:** [ec-genius.vercel.app](https://ec-genius.vercel.app)
 
 ---
 
