@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<style>
+  body {
+    background: linear-gradient(135deg, #0f172a 0%, #1a1f35 100%);
+    min-height: 100vh;
+  }
+
+  .hero-title {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #22c55e, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInDown 0.8s ease-out;
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .card-glass {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(34, 197, 94, 0.15);
+    border-radius: 24px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .card-glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(6, 182, 212, 0.05));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .card-glass:hover {
+    transform: translateY(-8px);
+    border-color: rgba(34, 197, 94, 0.3);
+    box-shadow: 0 20px 40px rgba(34, 197, 94, 0.15), 0 0 40px rgba(34, 197, 94, 0.1);
+  }
+
+  .card-glass:hover::before {
+    opacity: 1;
+  }
+
+  .input-dark {
+    background: rgba(15, 23, 42, 0.9);
+    border: 2px solid rgba(30, 41, 59, 0.8);
+    color: #e2e8f0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .input-dark::placeholder {
+    color: #64748b;
+  }
+
+  .input-dark:hover {
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(30, 41, 59, 0.6);
+  }
+
+  .input-dark:focus {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: #22c55e;
+    color: #f0fdf4;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1), inset 0 0 0 1px rgba(34, 197, 94, 0.2);
+    outline: none;
+  }
+
+  .form-control.input-dark {
+    background: rgba(15, 23, 42, 0.9);
+    border: 2px solid rgba(30, 41, 59, 0.8);
+    color: #e2e8f0;
+  }
+
+  .form-control.input-dark:focus {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  }
+
+  .btn-glow {
+    background: linear-gradient(135deg, #22c55e, #10b981);
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 12px 24px;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+  }
+
+  .btn-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4), 0 0 20px rgba(34, 197, 94, 0.3);
+    background: linear-gradient(135deg, #10b981, #06b6d4);
+  }
+
+  .btn-glow:hover::before {
+    left: 100%;
+  }
+
+  .btn-glow:active {
+    transform: translateY(0);
+  }
+
+  .section-sub {
+    color: #cbd5e1;
+    font-size: 16px;
+  }
+
+  .form-label {
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .result-success {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.1));
+    border: 2px solid rgba(34, 197, 94, 0.5);
+    border-radius: 14px;
+    padding: 18px 16px;
+    color: #86efac;
+    font-weight: 600;
+    animation: slideInUp 0.4s ease-out;
+  }
+
+  .result-error {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    border-radius: 14px;
+    padding: 18px 16px;
+    color: #fca5a5;
+    font-weight: 600;
+    animation: slideInUp 0.4s ease-out;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .feature-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: inline-block;
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  .card-glass h5 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 6px;
+  }
+
+  .card-glass .text-secondary {
+    color: #94a3b8 !important;
+    font-size: 14px;
+  }
+
+  .row.g-3 {
+    margin-bottom: 0;
+  }
+
+  .form-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.2), transparent);
+    margin: 16px 0;
+  }
+
+  /* Chatbot fix */
+  #chatbot {
+    bottom: 25px;
+    right: 25px;
+    width: 320px;
+  }
+</style>
+
+<div class="mb-5 pt-2">
+  <h1 class="hero-title">🫀 ECG & Heart Disease Detection</h1>
+  <p class="section-sub mt-3">
+    Advanced AI-powered analysis for cardiac health monitoring
+  </p>
+</div>
+
+<div class="row g-4">
+
+  <!-- ECG Upload -->
+  <div class="col-lg-6">
+    <div class="card-glass p-5 h-100">
+      <div class="feature-icon">📤</div>
+      <h5 class="mb-1">Upload ECG Signal</h5>
+      <p class="text-secondary small mb-4">Instant cardiac analysis powered by AI</p>
+
+      <form method="POST" action="/predict" enctype="multipart/form-data">
+        <div class="mb-4">
+          <label class="form-label">Select ECG Files</label>
+          <div class="position-relative">
+            <input type="file" name="files" multiple class="form-control input-dark" accept=".hea,.mat,.dat"
+              style="cursor: pointer; padding: 14px; height: auto;">
+            <small class="text-secondary d-block mt-2">📁 .hea + .mat / .dat formats supported</small>
+          </div>
+        </div>
+
+        <button class="btn btn-glow w-100" type="submit">
+          🔍 Analyze ECG Signal
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Heart Prediction -->
+  <div class="col-lg-6">
+    <div class="card-glass p-5 h-100">
+      <div class="feature-icon">❤️</div>
+      <h5 class="mb-1">Heart Disease Risk Prediction</h5>
+      <p class="text-secondary small mb-4">Enter your health metrics for assessment</p>
+
+      <form id="heartForm">
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Age (years)</label>
+            <input class="form-control input-dark" placeholder="e.g., 45" id="age" type="number" min="0" max="120">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Sex</label>
+            <select class="form-control input-dark" id="sex">
+              <option value="">Select...</option>
+              <option value="1">Male</option>
+              <option value="0">Female</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Chest Pain Type (1-4)</label>
+            <input class="form-control input-dark" placeholder="e.g., 1" id="cp" type="number" min="1" max="4">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Blood Pressure (mmHg)</label>
+            <input class="form-control input-dark" placeholder="e.g., 120" id="trestbps" type="number" min="0">
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Cholesterol (mg/dl)</label>
+          <input class="form-control input-dark" placeholder="e.g., 200" id="chol" type="number" min="0">
+        </div>
+
+        <button type="button" onclick="predictHeart()" class="btn btn-glow w-100">
+          💓 Predict Risk Level
+        </button>
+
+      </form>
+
+      <div id="result" class="mt-5"></div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function predictHeart() {
+    const age = document.getElementById("age").value;
+    const sex = document.getElementById("sex").value;
+    const cp = document.getElementById("cp").value;
+    const trestbps = document.getElementById("trestbps").value;
+    const chol = document.getElementById("chol").value;
+
+    if (!age || !sex || !cp || !trestbps || !chol) {
+      document.getElementById("result").innerHTML =
+        '<div class="result-error">❌ Please fill in all fields</div>';
+      return;
+    }
+
+    fetch('/predict-heart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        age: age,
+        sex: sex,
+        cp: cp,
+        trestbps: trestbps,
+        chol: chol,
+        fbs: 0, restecg: 0, thalach: 150,
+        exang: 0, oldpeak: 1, slope: 2, ca: 0, thal: 2
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        const resultDiv = document.getElementById("result");
+        if (data.result && data.result.includes('Risk')) {
+          resultDiv.innerHTML = `<div class="result-success">✅ ${data.result}</div>`;
+        } else {
+          resultDiv.innerHTML = `<div class="result-error">⚠️ ${data.result || 'Error in prediction'}</div>`;
+        }
+      })
+      .catch(err => {
+        document.getElementById("result").innerHTML =
+          '<div class="result-error">❌ Prediction failed. Please try again.</div>';
+      });
+  }
+</script>
+
+{% endblock %}

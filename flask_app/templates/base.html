@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}ECG AI{% endblock %}</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    .navbar {
+      background: #020617;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .text-green {
+      color: #22c55e;
+    }
+
+    .card-dark {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+    }
+
+    .btn-main {
+      background: linear-gradient(90deg, #22c55e, #06b6d4);
+      border: none;
+      color: white;
+    }
+
+    /* Chatbot */
+    #chatbot-toggle {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #22c55e, #06b6d4);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+      transition: all 0.3s ease;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #chatbot-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(34, 197, 94, 0.6);
+    }
+
+    #chatbot {
+      position: fixed;
+      bottom: 100px;
+      right: 25px;
+      width: 380px;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.8));
+      border-radius: 18px;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      display: none;
+      flex-direction: column;
+      backdrop-filter: blur(15px);
+      z-index: 998;
+      max-height: 500px;
+    }
+
+    #chatbot.active {
+      display: flex;
+    }
+
+    #chatbot-header {
+      background: linear-gradient(135deg, #22c55e, #06b6d4);
+      padding: 16px;
+      border-radius: 16px 16px 0 0;
+      color: white;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #chatbox {
+      height: 320px;
+      overflow-y: auto;
+      padding: 16px;
+      flex: 1;
+    }
+
+    .chat-message {
+      margin-bottom: 12px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chat-message.user {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .chat-message.user .chat-bubble {
+      background: linear-gradient(135deg, #22c55e, #10b981);
+      color: white;
+      border-radius: 16px 16px 4px 16px;
+    }
+
+    .chat-message.ai .chat-bubble {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #e2e8f0;
+      border-radius: 16px 16px 16px 4px;
+    }
+
+    .chat-bubble {
+      padding: 10px 14px;
+      max-width: 85%;
+      word-wrap: break-word;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    #chatbot-input-area {
+      padding: 14px;
+      border-top: 1px solid rgba(34, 197, 94, 0.2);
+      display: flex;
+      gap: 8px;
+    }
+
+    #msg {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.8);
+      color: #e2e8f0;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+
+    #msg:focus {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+    }
+
+    #msg::placeholder {
+      color: #64748b;
+    }
+
+    .chat-send-btn {
+      background: linear-gradient(135deg, #22c55e, #10b981);
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .chat-send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    }
+
+    .chat-send-btn:active {
+      transform: translateY(0);
+    }
+
+    .loading-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .loading-dots span {
+      width: 6px;
+      height: 6px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: bounce 1.4s infinite;
+    }
+
+    .loading-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loading-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        opacity: 0.3;
+        transform: translateY(0);
+      }
+
+      50% {
+        opacity: 1;
+        transform: translateY(-6px);
+      }
+    }
+  </style>
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar px-4 py-2">
+    <h5 class="text-green">🫀 ECG AI Monitor</h5>
+    <div>
+      <a href="/" class="text-light me-3">Home</a>
+      <a href="/dashboard" class="text-light">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Chatbot -->
+  <button id="chatbot-toggle" title="Chat with AI">💬</button>
+
+  <div id="chatbot">
+    <div id="chatbot-header">
+      <span>🤖 AI Assistant</span>
+      <button onclick="toggleChat()"
+        style="background: none; border: none; color: white; cursor: pointer; font-size: 18px;">✕</button>
+    </div>
+    <div id="chatbox"></div>
+    <div id="chatbot-input-area">
+      <input id="msg" placeholder="Ask about ECG or health..." />
+      <button class="chat-send-btn" onclick="sendMsg()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleChat() {
+      const chatbot = document.getElementById("chatbot");
+      chatbot.classList.toggle("active");
+    }
+
+    document.getElementById("chatbot-toggle").addEventListener("click", toggleChat);
+
+    function sendMsg() {
+      let msg = document.getElementById("msg").value.trim();
+      if (!msg) return;
+
+      let box = document.getElementById("chatbox");
+
+      // Add user message
+      let userDiv = document.createElement("div");
+      userDiv.className = "chat-message user";
+      userDiv.innerHTML = '<div class="chat-bubble">' + escapeHtml(msg) + '</div>';
+      box.appendChild(userDiv);
+      box.scrollTop = box.scrollHeight;
+
+      // Show loading state
+      let loadingDiv = document.createElement("div");
+      loadingDiv.className = "chat-message ai";
+      loadingDiv.innerHTML = '<div class="chat-bubble"><div class="loading-dots"><span></span><span></span><span></span></div></div>';
+      box.appendChild(loadingDiv);
+      box.scrollTop = box.scrollHeight;
+
+      fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+      })
+        .then(r => r.json())
+        .then(d => {
+          // Remove loading state
+          loadingDiv.remove();
+
+          // Add AI response
+          let aiDiv = document.createElement("div");
+          aiDiv.className = "chat-message ai";
+          aiDiv.innerHTML = '<div class="chat-bubble">' + escapeHtml(d.response || "Unable to process your request. Please try again.") + '</div>';
+          box.appendChild(aiDiv);
+          box.scrollTop = box.scrollHeight;
+        })
+        .catch(err => {
+          loadingDiv.remove();
+          let errDiv = document.createElement("div");
+          errDiv.className = "chat-message ai";
+          errDiv.innerHTML = '<div class="chat-bubble">❌ Connection error. Please try again.</div>';
+          box.appendChild(errDiv);
+          box.scrollTop = box.scrollHeight;
+        });
+
+      document.getElementById("msg").value = "";
+    }
+
+    function escapeHtml(text) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Send on Enter key
+    document.getElementById("msg").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        sendMsg();
+      }
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+
+</body>
+
+</html>

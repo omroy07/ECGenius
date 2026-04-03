@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="text-green">Training Dashboard</h2>
+
+<canvas id="chart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  fetch('/api/training-log')
+    .then(res => res.json())
+    .then(data => {
+      let e = data.epochs;
+
+      new Chart(document.getElementById("chart"), {
+        type: "line",
+        data: {
+          labels: e.map(x => x.epoch),
+          datasets: [{
+            label: "Loss",
+            data: e.map(x => x.train_loss)
+          }]
+        }
+      });
+    });
+</script>
+
+{% endblock %}
